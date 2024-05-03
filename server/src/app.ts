@@ -1,4 +1,4 @@
-import express, { Response } from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import dotenv from 'dotenv'
 import AppError from './utils/appError.js'
 import authRoute from './routes/authRoutes.js'
@@ -14,7 +14,7 @@ app.use('*', (req, res, next) => {
   next(new AppError(404, 'This route does not exist'))
 })
 
-app.use((err, req, res, next) => {
+app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
   console.log(err)
   res.status(err.statusCode).json({
     status: err.status,
