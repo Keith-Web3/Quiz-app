@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import validator from 'validator'
+import bcrypt from 'bcryptjs'
 
 interface User {
   name: string
@@ -45,6 +46,17 @@ const userSchema = new mongoose.Schema<User>({
     select: false,
     default: true,
   },
+})
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next()
+
+  const hashedPassword = await bcrypt.hash(this.password, 12)
+
+  this.password = hashedPassword
+  this.passwordConfirm = null
+
+  next()
 })
 
 const User = mongoose.model<User>('User', userSchema)

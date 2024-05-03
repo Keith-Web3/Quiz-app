@@ -11,9 +11,9 @@ export const signup = catchAsync(async function (req, res, next) {
     'passwordConfirm'
   )
 
-  console.log(userData)
-
   const user = await User.create(userData)
+
+  user.password = null
 
   res.status(201).json({
     status: 'success',
