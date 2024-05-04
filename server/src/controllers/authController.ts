@@ -1,8 +1,9 @@
+import { Request } from 'express'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import User from '../models/userModel.js'
 import AppError from '../utils/appError.js'
 import catchAsync from '../utils/catchAsync.js'
 import extract from '../utils/extract.js'
-import jwt from 'jsonwebtoken'
 
 export const signToken = function (userId: string, rememberUser?: boolean) {
   const token = jwt.sign(
@@ -15,6 +16,37 @@ export const signToken = function (userId: string, rememberUser?: boolean) {
 
   return token
 }
+
+export const protect = catchAsync(async function (req, res, next) {
+  const authToken = req.headers.authorization
+
+  if (!authToken || !authToken.startsWith('Bearer')) {
+    return next(
+      new AppError(401, 'You are not logged in, please log into access!')
+    )
+  }
+  const token = authToken.split(' ')[1]
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload
+
+  const user = await User.findById(decoded.userId)
+
+  if (!user) {
+    return next(
+      new AppError(401, 'The user belonging to this token no longer exists')
+    )
+  }
+
+  if (user.passwordChangedAt.getTime() > decoded.iat * 1000) {
+    return next(
+      new AppError(401, 'Password changed, please login again to access.')
+    )
+  }
+
+  ;(req as Request & { user: User }).user = user
+
+  next()
+})
 
 export const signup = catchAsync(async function (req, res, next) {
   const userData = extract(
