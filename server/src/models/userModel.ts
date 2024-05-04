@@ -9,6 +9,7 @@ interface User {
   passwordConfirm: string
   active: boolean
   photo?: string
+  comparePasswords: (password: string) => Promise<boolean>
 }
 
 const userSchema = new mongoose.Schema<User>({
@@ -58,6 +59,10 @@ userSchema.pre('save', async function (next) {
 
   next()
 })
+
+userSchema.methods.comparePasswords = async function (password: string) {
+  return await bcrypt.compare(password, this.password)
+}
 
 const User = mongoose.model<User>('User', userSchema)
 
