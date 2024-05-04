@@ -8,6 +8,7 @@ interface User {
   password: string
   passwordConfirm: string
   active: boolean
+  passwordChangedAt: Date
   photo?: string
   comparePasswords: (password: string) => Promise<boolean>
 }
@@ -47,6 +48,10 @@ const userSchema = new mongoose.Schema<User>({
     select: false,
     default: true,
   },
+  passwordChangedAt: {
+    type: 'date',
+    default: new Date(0),
+  },
 })
 
 userSchema.pre('save', async function (next) {
@@ -56,6 +61,14 @@ userSchema.pre('save', async function (next) {
 
   this.password = hashedPassword
   this.passwordConfirm = null
+
+  next()
+})
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password') || this.isNew) return next()
+
+  this.passwordChangedAt = new Date()
 
   next()
 })
