@@ -4,13 +4,13 @@ import catchAsync from '../utils/catchAsync.js'
 import extract from '../utils/extract.js'
 import jwt from 'jsonwebtoken'
 
-export const signToken = function (userId: string) {
+export const signToken = function (userId: string, rememberUser?: boolean) {
   const token = jwt.sign(
     {
       userId,
     },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_TOKEN_EXPIRES_IN }
+    { expiresIn: rememberUser ? '30d' : process.env.JWT_TOKEN_EXPIRES_IN }
   )
 
   return token
@@ -40,7 +40,7 @@ export const signup = catchAsync(async function (req, res, next) {
 })
 
 export const login = catchAsync(async function (req, res, next) {
-  const { email, password } = req.body
+  const { email, password, rememberUser } = req.body
   const user = await User.findOne({ email }).select('+password')
 
   if (!user) {
@@ -51,7 +51,7 @@ export const login = catchAsync(async function (req, res, next) {
   if (!isPasswordCorrect) {
     return next(new AppError(400, 'Invalid email or password'))
   }
-  const token = signToken(user.id)
+  const token = signToken(user.id, rememberUser)
   user.password = null
 
   res.status(200).json({
