@@ -17,3 +17,14 @@ export const createQuiz = catchAsync(async function (req, res, next) {
     },
   })
 })
+
+export const getQuizzes = catchAsync(async function (req, res, next) {
+  const quizzes = await Quiz.find()
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      quizzes,
+    },
+  })
+})
