@@ -6,13 +6,13 @@ interface Answer {
   id: ObjectId
 }
 
-interface QuestionInterface {
+interface Question {
   question: string
   options: Answer[]
   quiz: ObjectId
 }
 
-const questionSchema = new mongoose.Schema<QuestionInterface>({
+const questionSchema = new mongoose.Schema<Question>({
   question: {
     type: String,
     required: [true, 'A question cannot be empty'],
@@ -44,7 +44,6 @@ const questionSchema = new mongoose.Schema<QuestionInterface>({
   },
 })
 
-export const Question = mongoose.model<QuestionInterface>(
-  'Question',
-  questionSchema
-)
+const Question = mongoose.model<Question>('Question', questionSchema)
+
+export default Question
