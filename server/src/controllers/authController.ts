@@ -116,7 +116,7 @@ export const forgotPassword = catchAsync(async function (req, res, next) {
     await sendMail(
       user.email,
       'Password reset',
-      `Hello ${user.name}, you requested a password reset. Visit ${resetUrl} to change your password`
+      `Hello ${user.name}, you requested a password reset. Visit ${resetUrl} to change your password. This link would expire in 5 minutes.`
     )
   } catch (err) {
     user.passwordResetToken = null

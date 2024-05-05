@@ -97,7 +97,7 @@ userSchema.methods.createResetToken = function () {
     .update(token)
     .digest('hex')
 
-  this.passwordTokenExpiresAt = Date.now() + 2 * 60 * 1000
+  this.passwordTokenExpiresAt = Date.now() + 5 * 60 * 1000
 
   return token
 }
