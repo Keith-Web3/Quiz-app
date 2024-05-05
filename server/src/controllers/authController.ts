@@ -46,7 +46,7 @@ export const protect = catchAsync(async function (req, res, next) {
     )
   }
 
-  ;(req as Request & { user: User }).user = user
+  req.user = user
 
   next()
 })
