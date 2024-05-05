@@ -4,6 +4,7 @@ import User from '../models/userModel.js'
 import AppError from '../utils/appError.js'
 import catchAsync from '../utils/catchAsync.js'
 import extract from '../utils/extract.js'
+import { sendMail } from '../utils/email.js'
 
 export const signToken = function (userId: string, rememberUser?: boolean) {
   const token = jwt.sign(
@@ -92,5 +93,48 @@ export const login = catchAsync(async function (req, res, next) {
       user,
     },
     token,
+  })
+})
+
+export const forgotPassword = catchAsync(async function (req, res, next) {
+  const { email } = req.body
+
+  const user = await User.findOne({
+    email,
+  })
+  if (!user) {
+    return next(new AppError(404, 'This user does not exist'))
+  }
+
+  try {
+    const token = user.createResetToken()
+
+    user.save()
+
+    const resetUrl = `${req.protocol}//${req.hostname}/v1/api/resetPassword/${token}`
+    await sendMail(
+      user.email,
+      'Password reset',
+      `Hello ${user.name}, you requested a password reset. Visit ${resetUrl} to change your password`
+    )
+  } catch (err) {
+    user.passwordResetToken = null
+    user.passwordTokenExpiresAt = null
+
+    user.save({ validateBeforeSave: false })
+
+    console.log(err)
+
+    return next(
+      new AppError(
+        400,
+        'An error occurred, please request for password reset again'
+      )
+    )
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Password reset email sent successfully',
   })
 })

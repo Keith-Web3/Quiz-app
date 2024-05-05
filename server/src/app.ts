@@ -9,7 +9,7 @@ dotenv.config({ path: './.env' })
 const app = express()
 
 app.use(express.json())
-app.use('/v1/auth', authRoute)
+app.use('/v1/api/auth', authRoute)
 
 app.use('*', (req, res, next) => {
   next(new AppError(404, 'This route does not exist'))

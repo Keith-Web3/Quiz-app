@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 interface User {
   name: string
@@ -11,28 +12,31 @@ interface User {
   passwordChangedAt: Date
   photo?: string
   comparePasswords: (password: string) => Promise<boolean>
+  passwordResetToken: string
+  passwordTokenExpiresAt: Date
+  createResetToken: () => string
 }
 
 const userSchema = new mongoose.Schema<User>({
   name: {
-    type: 'string',
+    type: String,
     required: [true, 'Please provide a name'],
     minlength: [3, 'Name contain 3 or more letters'],
   },
   email: {
-    type: 'string',
+    type: String,
     required: [true, 'Please provide a valid email'],
     validate: [validator.isEmail, 'Please provide a valid email'],
     unique: true,
   },
   password: {
-    type: 'string',
+    type: String,
     required: [true, 'Please provide a password'],
     minlength: [5, 'Password must have a length of 5 or longer'],
     select: false,
   },
   passwordConfirm: {
-    type: 'string',
+    type: String,
     required: [true, 'Please provide a password'],
     minlength: [5, 'Password must have a length of 5 or longer'],
     validate: {
@@ -44,13 +48,21 @@ const userSchema = new mongoose.Schema<User>({
     select: false,
   },
   active: {
-    type: 'boolean',
+    type: Boolean,
     select: false,
     default: true,
   },
   passwordChangedAt: {
-    type: 'date',
+    type: Date,
     default: new Date(0),
+  },
+  passwordResetToken: {
+    type: String,
+    select: false,
+  },
+  passwordTokenExpiresAt: {
+    type: Date,
+    select: false,
   },
 })
 
@@ -75,6 +87,19 @@ userSchema.pre('save', async function (next) {
 
 userSchema.methods.comparePasswords = async function (password: string) {
   return await bcrypt.compare(password, this.password)
+}
+
+userSchema.methods.createResetToken = function () {
+  const token = crypto.randomBytes(32).toString('hex')
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex')
+
+  this.passwordTokenExpiresAt = Date.now() + 2 * 60 * 1000
+
+  return token
 }
 
 const User = mongoose.model<User>('User', userSchema)
