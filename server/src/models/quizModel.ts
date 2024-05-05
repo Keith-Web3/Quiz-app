@@ -1,6 +1,6 @@
 import mongoose, { ObjectId } from 'mongoose'
 
-interface Quiz {
+interface QuizInterface {
   id: string
   name: string
   author: ObjectId
@@ -9,7 +9,7 @@ interface Quiz {
   updatedAt: Date
 }
 
-const quizSchema = new mongoose.Schema<Quiz>(
+const quizSchema = new mongoose.Schema<QuizInterface>(
   {
     name: {
       type: String,
@@ -28,4 +28,4 @@ const quizSchema = new mongoose.Schema<Quiz>(
   { timestamps: true }
 )
 
-export const Quiz = mongoose.model('Quiz', quizSchema)
+export const Quiz = mongoose.model<QuizInterface>('Quiz', quizSchema)
