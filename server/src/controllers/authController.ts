@@ -42,6 +42,7 @@ export const protect = catchAsync(async function (req, res, next) {
   if (user.passwordChangedAt.getTime() > decoded.iat * 1000) {
     return next(
       new AppError(401, 'Password changed, please login again to access.')
+      //TODO test this out when you have a protected route.
     )
   }
 
