@@ -47,7 +47,6 @@ export const getQuiz = catchAsync(async function (req, res, next) {
 export const deleteQuiz = catchAsync(async function (req, res, next) {
   const { quizId } = req.params
 
-  console.log(quizId)
   const quiz = await Quiz.findById(quizId)
 
   if (quiz.author.toString() !== req.user.id.toString()) {
@@ -84,8 +83,6 @@ export const addQuestions = catchAsync(async function (req, res, next) {
 
     return extractedQuestion
   })
-
-  console.log(questionsData)
 
   const questions = await Question.create(questionsData)
 
