@@ -1,5 +1,6 @@
 import { Request } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import crypto from 'crypto'
 import User from '../models/userModel.js'
 import AppError from '../utils/appError.js'
 import catchAsync from '../utils/catchAsync.js'
@@ -121,9 +122,7 @@ export const forgotPassword = catchAsync(async function (req, res, next) {
     user.passwordResetToken = null
     user.passwordTokenExpiresAt = null
 
-    user.save({ validateBeforeSave: false })
-
-    console.log(err)
+    await user.save({ validateBeforeSave: false })
 
     return next(
       new AppError(
@@ -136,5 +135,41 @@ export const forgotPassword = catchAsync(async function (req, res, next) {
   res.status(200).json({
     status: 'success',
     message: 'Password reset email sent successfully',
+  })
+})
+
+export const resetPassword = catchAsync(async function (req, res, next) {
+  const { resetToken } = req.params
+  const { password, passwordConfirm } = req.body
+
+  const token = crypto.createHash('sha256').update(resetToken).digest('hex')
+
+  const user = await User.findOne({ passwordResetToken: token }).select(
+    '+passwordTokenExpiresAt'
+  )
+
+  if (!user) {
+    return next(new AppError(400, 'Invalid reset token'))
+  }
+
+  if (user.passwordTokenExpiresAt < new Date()) {
+    return next(
+      new AppError(
+        401,
+        'Password reset link expired, please request a new reset token'
+      )
+    )
+  }
+
+  user.password = password
+  user.passwordConfirm = passwordConfirm
+  user.passwordResetToken = null
+  user.passwordTokenExpiresAt = null
+
+  await user.save()
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Password reset successfully',
   })
 })
