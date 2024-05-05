@@ -1,9 +1,10 @@
-import mongoose from 'mongoose'
+import mongoose, { ObjectId } from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
 interface User {
+  id: ObjectId
   name: string
   email: string
   password: string

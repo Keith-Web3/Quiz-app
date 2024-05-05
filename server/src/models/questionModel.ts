@@ -7,6 +7,7 @@ interface Answer {
 }
 
 interface Question {
+  id: ObjectId
   question: string
   options: Answer[]
   quiz: ObjectId
