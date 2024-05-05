@@ -3,7 +3,7 @@ import mongoose, { ObjectId } from 'mongoose'
 interface Answer {
   answer: string
   isCorrect?: boolean
-  id: ObjectId
+  _id: ObjectId
 }
 
 interface Question {
@@ -26,10 +26,6 @@ const questionSchema = new mongoose.Schema<Question>({
           required: [true, 'An answer cannot be empty'],
         },
         isCorrect: Boolean,
-        id: {
-          type: mongoose.Schema.ObjectId,
-          default: new mongoose.Types.ObjectId(),
-        },
       },
     ],
     validate: {
