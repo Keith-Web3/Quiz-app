@@ -1,3 +1,4 @@
+import Question from '../models/questionModel.js'
 import Quiz from '../models/quizModel.js'
 import AppError from '../utils/appError.js'
 import catchAsync from '../utils/catchAsync.js'
@@ -60,5 +61,38 @@ export const deleteQuiz = catchAsync(async function (req, res, next) {
   res.status(204).json({
     status: 'success',
     message: 'Quiz deleted successfully',
+  })
+})
+
+export const getQuestions = catchAsync(async function (req, res, next) {
+  const { quizId } = req.params
+
+  const questions = await Question.find({ quiz: quizId })
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      questions,
+    },
+  })
+})
+
+export const addQuestions = catchAsync(async function (req, res, next) {
+  const questionsData = req.body.map((question: Question) => {
+    const extractedQuestion = extract(question, 'question', 'options')
+    extractedQuestion.quiz = req.params.quizId
+
+    return extractedQuestion
+  })
+
+  console.log(questionsData)
+
+  const questions = await Question.create(questionsData)
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      questions,
+    },
   })
 })
