@@ -1,4 +1,5 @@
 import Quiz from '../models/quizModel.js'
+import AppError from '../utils/appError.js'
 import catchAsync from '../utils/catchAsync.js'
 import extract from '../utils/extract.js'
 
@@ -26,5 +27,38 @@ export const getQuizzes = catchAsync(async function (req, res, next) {
     data: {
       quizzes,
     },
+  })
+})
+
+export const getQuiz = catchAsync(async function (req, res, next) {
+  const { quizId } = req.params
+
+  const quiz = await Quiz.findById(quizId)
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      quiz,
+    },
+  })
+})
+
+export const deleteQuiz = catchAsync(async function (req, res, next) {
+  const { quizId } = req.params
+
+  console.log(quizId)
+  const quiz = await Quiz.findById(quizId)
+
+  if (quiz.author.toString() !== req.user.id.toString()) {
+    return next(
+      new AppError(401, 'You are not authorized to delete this tweet')
+    )
+  }
+
+  await Quiz.findByIdAndDelete(quizId)
+
+  res.status(204).json({
+    status: 'success',
+    message: 'Quiz deleted successfully',
   })
 })

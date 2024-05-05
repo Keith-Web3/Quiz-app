@@ -1,5 +1,10 @@
 import express from 'express'
-import { createQuiz, getQuizzes } from '../controllers/quizController.js'
+import {
+  createQuiz,
+  deleteQuiz,
+  getQuiz,
+  getQuizzes,
+} from '../controllers/quizController.js'
 import { protect } from '../controllers/authController.js'
 
 const router = express.Router()
@@ -7,5 +12,6 @@ const router = express.Router()
 router.use(protect)
 
 router.route('/').get(getQuizzes).post(createQuiz)
+router.route('/:quizId').get(getQuiz).delete(deleteQuiz)
 
 export default router
