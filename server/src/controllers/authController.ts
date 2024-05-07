@@ -1,4 +1,4 @@
-import { Request } from 'express'
+import { Response } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import crypto from 'crypto'
 import User from '../models/userModel.js'
@@ -7,7 +7,11 @@ import catchAsync from '../utils/catchAsync.js'
 import extract from '../utils/extract.js'
 import { sendMail } from '../utils/email.js'
 
-export const signToken = function (userId: string, rememberUser?: boolean) {
+export const signToken = function (
+  userId: string,
+  res: Response,
+  rememberUser?: boolean
+) {
   const token = jwt.sign(
     {
       userId,
@@ -15,6 +19,14 @@ export const signToken = function (userId: string, rememberUser?: boolean) {
     process.env.JWT_SECRET,
     { expiresIn: rememberUser ? '30d' : process.env.JWT_TOKEN_EXPIRES_IN }
   )
+
+  res.cookie('jwt', token, {
+    expires: new Date(
+      Date.now() + +process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    secure: process.env.NODE_ENV !== 'development',
+    httpOnly: true,
+  })
 
   return token
 }
@@ -60,7 +72,7 @@ export const signup = catchAsync(async function (req, res, next) {
   )
 
   const user = await User.create(userData)
-  const token = signToken(user.id)
+  const token = signToken(user.id, res)
 
   user.password = null
 
@@ -85,7 +97,7 @@ export const login = catchAsync(async function (req, res, next) {
   if (!isPasswordCorrect) {
     return next(new AppError(400, 'Invalid email or password'))
   }
-  const token = signToken(user.id, rememberUser)
+  const token = signToken(user.id, res, rememberUser)
   user.password = null
 
   res.status(200).json({

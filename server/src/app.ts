@@ -4,6 +4,7 @@ import xss from 'xss-clean'
 import helmet from 'helmet'
 import sanitize from 'express-mongo-sanitize'
 import rateLimit from 'express-rate-limit'
+import cookieParser from 'cookie-parser'
 
 import AppError from './utils/appError.js'
 import authRoute from './routes/authRoutes.js'
@@ -18,6 +19,7 @@ const app = express()
 app.use(helmet())
 app.use(xss())
 app.use(sanitize())
+app.use(cookieParser())
 
 const limiter = rateLimit({
   max: 100,
