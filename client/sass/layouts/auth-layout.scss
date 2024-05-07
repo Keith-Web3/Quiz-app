@@ -1,0 +1,44 @@
+@use '../variables' as *;
+
+.auth-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template: 1fr / 1fr 1fr;
+
+  @media (max-width: 740px) {
+    grid-template: 1fr / 1fr;
+  }
+  @media (max-width: 400px) {
+    min-height: 100dvh;
+  }
+
+  &__main {
+    display: grid;
+    place-items: center;
+    padding: $spacer;
+  }
+
+  &__placeholder {
+    background-color: $blue-50b;
+    display: grid;
+    place-items: center;
+    position: relative;
+    @media (max-width: 740px) {
+      display: none;
+    }
+
+    .circle {
+      width: min(40%, 220px);
+      background-color: $purple-100;
+      border-radius: 50%;
+      aspect-ratio: 1 / 1;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 50% 0 0 0;
+      background-color: transparent;
+      backdrop-filter: blur(20px);
+    }
+  }
+}
