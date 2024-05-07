@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { cookies } from 'next/headers'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 
 export async function signup(_formStatus: any, formData: FormData) {
   const schema = z.object({
@@ -44,26 +44,25 @@ export async function signup(_formStatus: any, formData: FormData) {
   }
 
   try {
-    const response = await fetch(
+    const response = await axios.post(
       `${process.env.SERVER_URL}/v1/api/auth/signup`,
+      validatedFields.data,
       {
-        method: 'POST',
-        body: JSON.stringify(validatedFields.data),
         headers: {
           'Content-Type': 'application/json',
         },
       }
     )
-    const data = await response.json()
-    if (!response.ok) {
-      return { message: data.message, path: '' }
-    }
 
-    cookies().set(process.env.JWT_NAME!, data.token, {
-      expires: Date.now() + +process.env.JWT_EXPIRES_IN! * 24 * 60 * 60 * 1000,
+    const jwtArr = response.headers['set-cookie']![0].split(';')
+    const authToken = jwtArr[0].slice(4)
+    const cookieExpiresAt = new Date(jwtArr[0].slice(9))
+
+    cookies().set(process.env.JWT_NAME!, authToken, {
+      expires: cookieExpiresAt.getTime(),
     })
-  } catch (err) {
-    return { message: err, path: '' }
+  } catch (err: any) {
+    return { message: err.response?.data.message, path: '' }
   }
   redirect('/')
 }
@@ -80,8 +79,6 @@ export async function login(_formStatus: any, formData: FormData) {
       })
       .min(8, 'Password must be 8 characters or more'),
   })
-
-  console.log(formData.get('remember'))
 
   const validatedFields = schema.safeParse({
     email: formData.get('email'),
@@ -110,7 +107,6 @@ export async function login(_formStatus: any, formData: FormData) {
       }
     )
 
-    console.log(response.headers['set-cookie'])
     const jwtArr = response.headers['set-cookie']![0].split(';')
     const authToken = jwtArr[0].slice(4)
     const cookieExpiresAt = new Date(jwtArr[0].slice(9))
