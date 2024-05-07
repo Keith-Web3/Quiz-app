@@ -5,6 +5,20 @@ import { z } from 'zod'
 import { cookies } from 'next/headers'
 import axios from 'axios'
 
+axios.interceptors.request.use(
+  function (config) {
+    // Do something before request is sent
+    const authToken = cookies().get(process.env.JWT_NAME!)?.value
+    console.log('read token as:', authToken)
+    config.headers.Authorization = `Bearer ${authToken}`
+    return config
+  },
+  function (error) {
+    // Do something with request error
+    return Promise.reject(error)
+  }
+)
+
 export async function signup(_formStatus: any, formData: FormData) {
   const schema = z.object({
     email: z.string({
