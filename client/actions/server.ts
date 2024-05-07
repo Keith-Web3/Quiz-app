@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { cookies } from 'next/headers'
+import axios, { AxiosError } from 'axios'
 
 export async function signup(_formStatus: any, formData: FormData) {
   const schema = z.object({
@@ -96,42 +97,31 @@ export async function login(_formStatus: any, formData: FormData) {
   }
 
   try {
-    const response = await fetch(
+    const response = await axios.post(
       `${process.env.SERVER_URL}/v1/api/auth/login`,
       {
-        method: 'POST',
-        body: JSON.stringify({
-          ...validatedFields.data,
-          rememberUser: formData.get('remember') === 'on',
-        }),
+        ...validatedFields.data,
+        rememberUser: formData.get('remember') === 'on',
+      },
+      {
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'no-cache',
       }
     )
-    const data = await response.json()
 
-    console.log('user data', data)
-    if (!response.ok) {
-      return { message: data.message, path: '' }
-    }
+    console.log(response.headers['set-cookie'])
+    const jwtArr = response.headers['set-cookie']![0].split(';')
+    const authToken = jwtArr[0].slice(4)
+    const cookieExpiresAt = new Date(jwtArr[0].slice(9))
 
-    console.log(response.headers.get('jwt'))
-
-    cookies().set(process.env.JWT_NAME!, data.token, {
-      expires:
-        Date.now() +
-        +process.env.JWT_EXPIRES_IN! *
-          (formData.get('remember') ? 30 : 7) *
-          24 *
-          60 *
-          60 *
-          1000,
+    cookies().set(process.env.JWT_NAME!, authToken, {
+      expires: cookieExpiresAt.getTime(),
     })
-  } catch (err) {
-    console.log('error:', err)
-    return { message: err, path: '' }
+  } catch (err: any) {
+    console.log('error:', err.response?.data) //TODO remove log
+
+    return { message: err.response?.data.message, path: '' }
   }
   redirect('/')
 }
