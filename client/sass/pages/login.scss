@@ -1,0 +1,43 @@
+@use '../variables' as *;
+
+.login {
+  &__header {
+    font-size: 2rem;
+    font-weight: 500;
+    color: $gray-200;
+  }
+  &__subheader {
+    color: $dark-200;
+    margin-block: $spacer * 0.25 $spacer * 0.5;
+  }
+  &__options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block: $spacer * 1.5 $spacer;
+    gap: $spacer;
+    font-size: 0.95rem;
+
+    a {
+      text-transform: capitalize;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: $spacer * 0.5;
+      cursor: pointer;
+
+      input {
+        accent-color: $purple-100;
+      }
+    }
+  }
+  &__signup {
+    margin-top: $spacer * 1.5;
+    color: $dark-200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacer * 0.5;
+  }
+}

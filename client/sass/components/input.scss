@@ -1,0 +1,46 @@
+@use '../variables' as *;
+
+.input {
+  display: block;
+  color: $dark-200;
+  text-transform: capitalize;
+  margin-top: $spacer;
+  width: 100%;
+  position: relative;
+
+  input {
+    border: 2px solid $gray-100;
+    outline: none;
+    color: $gray-200;
+    display: block;
+    margin-top: $spacer * 0.5;
+    border-radius: 5px;
+    padding: 0.5em 0.75em;
+    width: 100%;
+
+    &::placeholder {
+      color: $dark-200;
+      text-transform: capitalize;
+    }
+    &:focus {
+      border-color: mix($gray-100, black, 60%);
+    }
+  }
+  svg {
+    position: absolute;
+    inset: 42px $spacer auto auto;
+    cursor: pointer;
+  }
+  &__error {
+    display: none;
+  }
+
+  &.invalid {
+    .input__error {
+      text-transform: none;
+      display: block;
+      color: red;
+      font-size: 0.9rem;
+    }
+  }
+}

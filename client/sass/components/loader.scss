@@ -1,0 +1,16 @@
+@use '../variables' as *;
+
+.loader {
+  aspect-ratio: 1 / 1;
+  background-color: transparent;
+  animation: rotate 500ms linear infinite;
+  border-right-color: transparent !important;
+  border-radius: 50%;
+  opacity: 0.8;
+
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}

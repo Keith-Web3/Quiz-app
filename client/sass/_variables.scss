@@ -1,0 +1,30 @@
+$spacer: 1em;
+$gray-50: #e9eef1;
+$gray-100: #909195;
+$gray-200: #4e5356;
+$dark-100: #67686a;
+$dark-200: #303134;
+$dark-300: #2b3036;
+$blue-50: #e5eeff;
+$blue-50b: #f3f4f8;
+$blue-100: #7289b3;
+$blue-200: #2a5ec5;
+$purple-100: #613db7;
+$cyan: #c6f1dd;
+$green-200: #2d6a4b;
+
+@mixin screen($size) {
+  @media (min-width: #{$size}px) {
+    @content;
+  }
+}
+@mixin buttonDefault() {
+  all: unset;
+  padding: 0.75em 1.3em;
+  font-weight: 700;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  width: max-content;
+}

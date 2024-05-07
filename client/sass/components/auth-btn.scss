@@ -1,0 +1,26 @@
+@use '../variables' as *;
+
+.auth-btn {
+  border: none;
+  outline: none;
+  background-color: $purple-100;
+  padding: 0.75em 1em;
+  border-radius: 8px;
+  width: 100%;
+  text-transform: capitalize;
+  color: white;
+  cursor: pointer;
+  transition: 200ms linear background-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacer;
+
+  &:hover {
+    background-color: mix($purple-100, black, 85%);
+  }
+  &:disabled {
+    background-color: $gray-200;
+    cursor: not-allowed;
+  }
+}
