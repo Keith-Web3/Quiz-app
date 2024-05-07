@@ -40,7 +40,7 @@ const Login = function ({}: LoginProps) {
         />
         <div className="login__options">
           <label htmlFor="remember">
-            <input type="checkbox" id="remember" />
+            <input type="checkbox" name="remember" id="remember" />
             Remember for 30 days
           </label>
           <Link href="/">forgot password</Link>

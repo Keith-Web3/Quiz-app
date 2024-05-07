@@ -43,13 +43,16 @@ export async function signup(_formStatus: any, formData: FormData) {
   }
 
   try {
-    const response = await fetch(`${process.env.SERVER_URL}/v1/auth/signup`, {
-      method: 'POST',
-      body: JSON.stringify(validatedFields.data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    const response = await fetch(
+      `${process.env.SERVER_URL}/v1/api/auth/signup`,
+      {
+        method: 'POST',
+        body: JSON.stringify(validatedFields.data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
     const data = await response.json()
     if (!response.ok) {
       return { message: data.message, path: '' }
@@ -75,13 +78,13 @@ export async function login(_formStatus: any, formData: FormData) {
         required_error: 'Please provide a password',
       })
       .min(8, 'Password must be 8 characters or more'),
-    rememberUser: z.boolean(),
   })
+
+  console.log(formData.get('remember'))
 
   const validatedFields = schema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
-    rememberUser: formData.get('remember'),
   })
 
   if (!validatedFields.success) {
@@ -93,18 +96,28 @@ export async function login(_formStatus: any, formData: FormData) {
   }
 
   try {
-    const response = await fetch(`${process.env.SERVER_URL}/v1/auth/login`, {
-      method: 'POST',
-      body: JSON.stringify(validatedFields.data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-    })
+    const response = await fetch(
+      `${process.env.SERVER_URL}/v1/api/auth/login`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          ...validatedFields.data,
+          rememberUser: formData.get('remember') === 'on',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+      }
+    )
     const data = await response.json()
+
+    console.log('user data', data)
     if (!response.ok) {
       return { message: data.message, path: '' }
     }
+
+    console.log(response.headers.get('jwt'))
 
     cookies().set(process.env.JWT_NAME!, data.token, {
       expires:
@@ -117,6 +130,7 @@ export async function login(_formStatus: any, formData: FormData) {
           1000,
     })
   } catch (err) {
+    console.log('error:', err)
     return { message: err, path: '' }
   }
   redirect('/')
@@ -125,7 +139,7 @@ export async function login(_formStatus: any, formData: FormData) {
 export async function getMe() {
   const token = cookies().get(process.env.JWT_NAME!)?.value
   const response = await fetch(
-    `${process.env.SERVER_URL}/v1/users/current-user`,
+    `${process.env.SERVER_URL}/v1/api/users/current-user`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -135,13 +149,4 @@ export async function getMe() {
   const user = await response.json()
 
   return user
-}
-
-export async function getBook(id: string) {
-  const response = await fetch(`${process.env.SERVER_URL}/v1/books/${id}`, {
-    cache: 'no-cache',
-  })
-  const data = await response.json()
-
-  return data.data?.book
 }
