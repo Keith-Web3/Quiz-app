@@ -75,11 +75,13 @@ export async function login(_formStatus: any, formData: FormData) {
         required_error: 'Please provide a password',
       })
       .min(8, 'Password must be 8 characters or more'),
+    rememberUser: z.boolean(),
   })
 
   const validatedFields = schema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
+    rememberUser: formData.get('remember'),
   })
 
   if (!validatedFields.success) {
@@ -105,7 +107,14 @@ export async function login(_formStatus: any, formData: FormData) {
     }
 
     cookies().set(process.env.JWT_NAME!, data.token, {
-      expires: Date.now() + +process.env.JWT_EXPIRES_IN! * 24 * 60 * 60 * 1000,
+      expires:
+        Date.now() +
+        +process.env.JWT_EXPIRES_IN! *
+          (formData.get('remember') ? 30 : 7) *
+          24 *
+          60 *
+          60 *
+          1000,
     })
   } catch (err) {
     return { message: err, path: '' }
