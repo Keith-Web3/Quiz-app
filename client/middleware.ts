@@ -12,7 +12,6 @@ export async function middleware(request: NextRequest) {
   }
   if (allowLoggedOut) return
   if (!token?.length) {
-    console.log('redirecting')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
