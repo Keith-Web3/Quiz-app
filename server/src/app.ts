@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 
 import AppError from './utils/appError.js'
 import authRoute from './routes/authRoutes.js'
+import userRoute from './routes/userRoutes.js'
 import quizRoute from './routes/quizRoutes.js'
 import questionRoute from './routes/questionRoutes.js'
 import errorController from './controllers/errorController.js'
@@ -31,6 +32,7 @@ app.use('/v*/api', limiter)
 
 app.use(express.json({ limit: '10kb' }))
 app.use('/v1/api/auth', authRoute)
+app.use('/v1/api/user', userRoute)
 app.use('/v1/api/quiz', quizRoute)
 app.use('/v1/api/question', questionRoute)
 

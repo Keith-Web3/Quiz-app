@@ -8,11 +8,18 @@ export default async function (
   res: Response,
   next: NextFunction
 ) {
+  console.log(err)
   if (err.name === 'MongoServerError' && err.code === 11000) {
     const duplicateField = Object.keys(err.errorResponse.keyValue)[0]
     return res.status(401).json({
       status: 'failed',
       message: `Duplicate ${duplicateField}. Please use another value!`,
+    })
+  }
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      status: 'failed',
+      message: 'jwt expired, please login again',
     })
   }
   if (!err.isOperational) {
